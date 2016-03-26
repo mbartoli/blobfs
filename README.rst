@@ -19,8 +19,11 @@ Installation & Setup
 ====================
 
 Prerequisites 
+
 - libfuse
+
 - python
+
 - python-pip
 
 
