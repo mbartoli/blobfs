@@ -24,7 +24,7 @@ Install the dependencies via pip
 
 |Python Version| |License Type|
 
-.. |Python Version| image:: https://img.shields.io/badge/python-2.7-red.svg
+.. |Python Version| image:: https://img.shields.io/badge/python-2.7-yellow.svg
     :target: https://www.python.org/
 
 .. |License Type| image:: https://img.shields.io/badge/license-APLv2-blue.svg
