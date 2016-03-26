@@ -34,8 +34,6 @@ Installation & Setup
 
 ----
 
-|Python Version| |License Type|
-
 .. |Python Version| image:: https://img.shields.io/badge/python-2.7-yellow.svg
     :target: https://www.python.org/
 
