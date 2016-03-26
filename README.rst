@@ -3,7 +3,7 @@ blobfs
 FUSE-based file system backed by Microsoft Azure's blob storage
 
 1. `Examples & Usage <#examples--usage>`_
-2. `Installation <#installation-setup>`_
+2. `Installation & Setup <#installation-setup>`_
 
 |Python Version| |License Type|
 
