@@ -13,12 +13,19 @@ Examples & Usage
 Installation & Setup
 ====================
 
-Install the dependencies via pip
+1. Install the dependencies via pip
 
 .. code:: bash 
 
     pip install azure-storage
 
+2. Add your storage account name and key to ''config.py''
+
+3. Test Azure connectivity 
+
+.. code:: bash 
+
+    python -W ignore verify-azure.py
 
 ----
 
