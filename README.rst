@@ -13,6 +13,12 @@ Examples & Usage
 Installation & Setup
 ====================
 
+Install the dependencies via pip
+
+.. code:: bash 
+
+    pip install azure-storage
+
 
 ----
 
