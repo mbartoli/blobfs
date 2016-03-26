@@ -17,8 +17,12 @@ Start blobfs where ``mnt`` is the folder where you want to mount Azure
 
 Installation & Setup
 ====================
+Prerequisites:
+ - libfuse
+ - python2.7
 
-1. Install the dependencies via pip
+
+1. Install the dependencies via pip 
 
 .. code:: bash 
 
