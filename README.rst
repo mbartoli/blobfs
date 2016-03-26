@@ -19,6 +19,7 @@ Installation & Setup
 ====================
 
 Prerequisites:
+
 - libfuse
 
 - python
