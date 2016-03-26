@@ -41,7 +41,6 @@ Prerequisites:
 
     python -W ignore verify-azure.py
 
-----
 
 .. |Python Version| image:: https://img.shields.io/badge/python-2.7-yellow.svg
     :target: https://www.python.org/
