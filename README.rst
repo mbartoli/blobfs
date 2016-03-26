@@ -9,6 +9,11 @@ FUSE-based file system backed by Microsoft Azure's blob storage
 
 Examples & Usage
 ================
+Start blobfs where ``mnt`` is the folder where you want to mount Azure
+
+.. code:: bash
+
+    python blobfs.py mnt 
 
 Installation & Setup
 ====================
@@ -19,7 +24,7 @@ Installation & Setup
 
     pip install azure-storage
 
-2. Add your storage account name and key to ''config.py''
+2. Add your storage account name and key to ``config.py``
 
 3. Test Azure connectivity 
 
