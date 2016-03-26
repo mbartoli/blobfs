@@ -3,7 +3,7 @@ blobfs
 FUSE-based file system backed by Microsoft Azure's blob storage
 
 1. `Examples & Usage <#examples--usage>`_
-2. `Installation <#installation-setup>`_
+2. `Installation & Setup <#installation-setup>`_
 
 |Python Version| |License Type|
 
@@ -18,7 +18,16 @@ Start blobfs where ``mnt`` is the folder where you want to mount Azure
 Installation & Setup
 ====================
 
-1. Install the dependencies via pip
+Prerequisites:
+
+- libfuse
+
+- python
+
+- python-pip
+
+
+1. Install additional dependencies via pip 
 
 .. code:: bash 
 
@@ -32,7 +41,6 @@ Installation & Setup
 
     python -W ignore verify-azure.py
 
-----
 
 .. |Python Version| image:: https://img.shields.io/badge/python-2.7-yellow.svg
     :target: https://www.python.org/
