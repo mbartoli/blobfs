@@ -179,7 +179,7 @@ class Passthrough(Operations):
 		3) delete old container
 		"""
 		# step 1 
-		self.mkdir(new)
+		self.mkdir(new, 0777)
 
 		# step 2
 		# TODO: steam contents 
