@@ -60,12 +60,10 @@ class Passthrough(Operations):
 			raise FuseOSError(errno.EACCES)
 
 	def chmod(self, path, mode):
-		full_path = self._full_path(path)
-		return os.chmod(full_path, mode)
+		pass
 
 	def chown(self, path, uid, gid):
-		full_path = self._full_path(path)
-		return os.chown(full_path, uid, gid)
+		pass
 
 	def getattr(self, path, fh=None):
 		if debug:
@@ -175,7 +173,19 @@ class Passthrough(Operations):
 		return os.symlink(name, self._full_path(target))
 
 	def rename(self, old, new):
-		return os.rename(self._full_path(old), self._full_path(new))
+		"""
+		1) create new container
+		2) stream contents of old container to new container
+		3) delete old container
+		"""
+		# step 1 
+		self.mkdir(new)
+
+		# step 2
+		# TODO: steam contents 
+
+		#step 3
+		self.rmdir(old)
 
 	def link(self, target, name):
 		return os.link(self._full_path(target), self._full_path(name))
