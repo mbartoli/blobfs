@@ -6,8 +6,9 @@ import os
 import sys
 import errno
 
-from fuse import FUSE, FuseOSError, Operations
 
+from fuse import FUSE, FuseOSError, Operations
+from time import time
 from azure.storage import CloudStorageAccount
 from tests import (
 	BlobSasSamples,
@@ -16,6 +17,8 @@ from tests import (
 	AppendBlobSamples,
 	PageBlobSamples,
 )
+
+debug = True 
 
 class Passthrough(Operations):
 	def __init__(self, root):
@@ -37,8 +40,7 @@ class Passthrough(Operations):
 											   account_key=account_key, 
 											   sas_token=sas)
 			self.service = self.account.create_block_blob_service()
-	# Helpers
-	# =======
+
 
 	def _full_path(self, partial):
 		if partial.startswith("/"):
@@ -46,10 +48,13 @@ class Passthrough(Operations):
 		path = os.path.join(self.root, partial)
 		return path
 
-	# Filesystem methods
-	# ==================
+	def _get_container_reference(self, prefix='container'):
+		return '{}{}'.format(prefix, str(uuid.uuid4()).replace('-', ''))
 
 	def access(self, path, mode):
+		if debug:
+			print "access" 
+
 		full_path = self._full_path(path)
 		if not os.access(full_path, mode):
 			raise FuseOSError(errno.EACCES)
@@ -63,17 +68,48 @@ class Passthrough(Operations):
 		return os.chown(full_path, uid, gid)
 
 	def getattr(self, path, fh=None):
+		if debug:
+			print "getattr  " + path 
+	
+		
+		data = {
+			"st_ctime" : 1456615173,
+			"st_mtime" : 1456615173,
+			"st_nlink" : 2,
+			"st_mode" : 16893,
+			"st_size" : 2,
+			"st_gid" : 1000,
+			"st_uid" : 1000,
+			"st_atime" : time(),
+		}
+		
+		#print data
 		full_path = self._full_path(path)
+		try:
+			st = os.lstat(full_path)
+			print st
+			rdata = dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime', 'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
+		except: 
+			pass
+		#print rdata
+		for container in list(self.service.list_containers()):
+			if container.name == path[1:]:
+				return data
+
 		st = os.lstat(full_path)
-		return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
-					 'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
+		print st
+		rdata = dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime', 'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
+		return rdata
 
 	def readdir(self, path, fh):
+		if debug:
+			print "readdir" 
+
 		full_path = self._full_path(path)
 
 		dirents = ['.', '..']
-		if os.path.isdir(full_path):
-			dirents.extend(os.listdir(full_path))
+		#if os.path.isdir(full_path):
+		#	dirents.extend(os.listdir(full_path))
 		for r in dirents:
 			yield r
 		containers = list(self.service.list_containers())
@@ -82,6 +118,9 @@ class Passthrough(Operations):
 			yield container.name
 
 	def readlink(self, path):
+		if debug:
+			print "readlink" 
+
 		pathname = os.readlink(self._full_path(path))
 		if pathname.startswith("/"):
 			# Path name is absolute, sanitize it.
@@ -93,8 +132,10 @@ class Passthrough(Operations):
 		return os.mknod(self._full_path(path), mode, dev)
 
 	def rmdir(self, path):
-		full_path = self._full_path(path)
-		return os.rmdir(full_path)
+		if debug:
+			print "rmdir  " + path[1:]
+		deleted = self.service.delete_container(path[1:])
+		return 0
 
 	def mkdir(self, path, mode):
 		"""
@@ -110,8 +151,15 @@ class Passthrough(Operations):
 		   container names.
 		3) All letters in a container name must be lowercase.
 		4) Container names must be from 3 through 63 characters long.
+
+		30 second lease timeout on deleted directory.
 		"""
-		return os.mkdir(self._full_path(path), mode)
+		if debug:
+			print "mkdir  " + path[1:]
+
+		# TODO: validate input 
+		self.service.create_container(path[1:])
+		return 0
 
 	def statfs(self, path):
 		full_path = self._full_path(path)

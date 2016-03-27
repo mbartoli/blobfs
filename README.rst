@@ -13,7 +13,7 @@ Start blobfs where ``mnt`` is the folder where you want to mount Azure
 
 .. code:: bash
 
-    python blobfs.py mnt 
+    python -W ignore blobfs.py mnt 
 
 Installation & Setup
 ====================
@@ -22,7 +22,7 @@ Prerequisites:
 
 - libfuse
 
-- python
+- python2.7
 
 - python-pip
 
