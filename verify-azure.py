@@ -15,6 +15,9 @@ from tests import (
 	PageBlobSamples,
 )
 
+from azure.storage.blob import BlockBlobService
+import azure.storage.blob
+
 class SampleTest():
 	def __init__(self):
 		try:
@@ -32,6 +35,7 @@ class SampleTest():
 			self.account = CloudStorageAccount(account_name=account_name, 
 											   account_key=account_key, 
 											   sas_token=sas)
+			self.service = self.account.create_block_blob_service()
 
 	def test_container_samples(self):
 		container = ContainerSamples(self.account)
@@ -57,7 +61,7 @@ class SampleTest():
 			print(container.name)     
 	
 	def list_all_blobs_in_all_containers(self):
-		self.service = self.account.create_block_blob_service()
+		#self.service = self.account.create_block_blob_service()
 		containers = list(self.service.list_containers())
 		print('Full list:')
 		for container in containers:
@@ -67,12 +71,25 @@ class SampleTest():
 				print(blob.name)
 			print('')
 
+	def test_get_put_blob(self):
+		import config as config
+		account_name = config.STORAGE_ACCOUNT_NAME
+		account_key = config.STORAGE_ACCOUNT_KEY
+		block_blob_service = BlockBlobService(account_name, account_key)
+		block_blob_service.create_blob_from_path(
+			'cont2',
+			'sunset.png',
+			'sunset.png',)	
+		block_blob_service.get_blob_to_path('cont2', 'sunset.png', 'out-sunset.png')
+
+
 def main():
 	tests = SampleTest()
-	#tests.test_container_samples()	
-	#tests.test_append_blob_samples()
-	#tests.test_page_blob_samples()
-	#tests.list_containers()
+	tests.test_container_samples()	
+	tests.test_append_blob_samples()
+	tests.test_page_blob_samples()
+	tests.list_containers()
+	tests.test_get_put_blob()
 	tests.list_all_blobs_in_all_containers()
 
 if __name__ == '__main__':
