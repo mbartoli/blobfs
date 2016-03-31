@@ -18,6 +18,9 @@ from tests import (
 	PageBlobSamples,
 )
 
+from azure.storage.blob import BlockBlobService
+import azure.storage.blob
+
 debug = True 
 
 class Passthrough(Operations):
@@ -56,8 +59,9 @@ class Passthrough(Operations):
 			print "access" 
 
 		full_path = self._full_path(path)
-		if not os.access(full_path, mode):
-			raise FuseOSError(errno.EACCES)
+		#if not os.access(full_path, mode):
+		#	pass#raise FuseOSError(errno.EACCES)
+		return 0
 
 	def chmod(self, path, mode):
 		pass
@@ -68,13 +72,26 @@ class Passthrough(Operations):
 	def getattr(self, path, fh=None):
 		if debug:
 			print "getattr  " + path 
-	
-		
-		data = {
+		isFolder = False
+		if len(path.split('/')) == 2:
+			isFolder = True
+
+		folder_data = {
 			"st_ctime" : 1456615173,
 			"st_mtime" : 1456615173,
 			"st_nlink" : 2,
 			"st_mode" : 16893,
+			"st_size" : 2,
+			"st_gid" : 1000,
+			"st_uid" : 1000,
+			"st_atime" : time(),
+		}
+
+		file_data = {
+			"st_ctime" : 1456615173,
+			"st_mtime" : 1456615173,
+			"st_nlink" : 1,
+			"st_mode" : 33188,
 			"st_size" : 2,
 			"st_gid" : 1000,
 			"st_uid" : 1000,
@@ -90,9 +107,12 @@ class Passthrough(Operations):
 		except: 
 			pass
 		#print rdata
-		for container in list(self.service.list_containers()):
-			if container.name == path[1:]:
-				return data
+		if isFolder:
+			for container in list(self.service.list_containers()):
+				if container.name == path[1:]:
+					return folder_data
+		else:
+			return file_data
 
 		st = os.lstat(full_path)
 		print st
@@ -189,8 +209,15 @@ class Passthrough(Operations):
 		self.mkdir(new, 0777)
 
 		# step 2
-		# TODO: steam contents 
-
+		# TODO: steam contents to new container
+		"""import config as config
+		account_name = config.STORAGE_ACCOUNT_NAME
+		account_key = config.STORAGE_ACCOUNT_KEY
+		block_blob_service = BlockBlobService(account_name, account_key)
+		block_blob_service.get_blob_to_path(containername, filename, tempfilename)	
+		block_blob_service.create_blob_from_path(new, filename, filename)"""	
+				
+	
 		#step 3
 		self.rmdir(old)
 
@@ -212,8 +239,19 @@ class Passthrough(Operations):
 		return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
 
 	def read(self, path, length, offset, fh):
-		os.lseek(fh, offset, os.SEEK_SET)
-		return os.read(fh, length)
+		if debug:
+			print "read		" + path
+		#os.lseek(fh, offset, os.SEEK_SET)
+		#return os.read(fh, length)
+		#raise FuseOSError(errno.EACCES)
+		import config as config
+		account_name = config.STORAGE_ACCOUNT_NAME
+		account_key = config.STORAGE_ACCOUNT_KEY
+		#print 
+		block_blob_service = BlockBlobService(account_name, account_key)
+		block_blob_service.get_blob_to_path(containername, filename, tempfilename)	
+		block_blob_service.create_blob_from_path(new, filename, filename)
+		return -1
 
 	def write(self, path, buf, offset, fh):
 		os.lseek(fh, offset, os.SEEK_SET)
