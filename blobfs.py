@@ -101,8 +101,8 @@ class Passthrough(Operations):
 
 	def readdir(self, path, fh):
 		if debug:
-			print "readdir" 
-
+			print "readdir " + path  
+		
 		full_path = self._full_path(path)
 
 		dirents = ['.', '..']
@@ -112,8 +112,15 @@ class Passthrough(Operations):
 			yield r
 		containers = list(self.service.list_containers())
 		#print('All containers in your account:')
-		for container in containers:
-			yield container.name
+		if path == "/":
+			for container in containers:
+				yield container.name
+		else: 
+			folder = path[1:]
+			blobs = list(self.service.list_blobs(folder))
+			for blob in blobs:
+				yield blob.name
+			
 
 	def readlink(self, path):
 		if debug:
