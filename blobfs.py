@@ -5,7 +5,7 @@ from __future__ import with_statement
 import os
 import sys
 import errno
-
+import os.path
 
 from fuse import FUSE, FuseOSError, Operations
 from time import time
@@ -20,6 +20,8 @@ from tests import (
 
 from azure.storage.blob import BlockBlobService
 import azure.storage.blob
+
+import pdb
 
 debug = True 
 
@@ -76,6 +78,18 @@ class Passthrough(Operations):
 		if len(path.split('/')) == 2:
 			isFolder = True
 
+		"""link_data = {
+			"st_ctime" : 1456615173,
+			"st_mtime" : 1456615173,
+			"st_nlink" : 2,
+			"st_mode" : 16893,
+			"st_size" : 2,
+			"st_gid" : 1000,
+			"st_uid" : 1000,
+			"st_atime" : time(),
+		}"""
+
+
 		folder_data = {
 			"st_ctime" : 1456615173,
 			"st_mtime" : 1456615173,
@@ -87,18 +101,7 @@ class Passthrough(Operations):
 			"st_atime" : time(),
 		}
 
-		file_data = {
-			"st_ctime" : 1456615173,
-			"st_mtime" : 1456615173,
-			"st_nlink" : 1,
-			"st_mode" : 33188,
-			"st_size" : 2,
-			"st_gid" : 1000,
-			"st_uid" : 1000,
-			"st_atime" : time(),
-		}
 		
-		#print data
 		full_path = self._full_path(path)
 		try:
 			st = os.lstat(full_path)
@@ -106,12 +109,38 @@ class Passthrough(Operations):
 			rdata = dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime', 'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
 		except: 
 			pass
-		#print rdata
+		#if os.path.isfile == True:
+		#	return 
 		if isFolder:
 			for container in list(self.service.list_containers()):
 				if container.name == path[1:]:
 					return folder_data
 		else:
+			"""import config as config
+			account_name = config.STORAGE_ACCOUNT_NAME
+			account_key = config.STORAGE_ACCOUNT_KEY"""
+			containername = path.split('/')[1]
+			filename = path.split('/')[2]
+			"""block_blob_service = BlockBlobService(account_name, account_key)
+			if os.path.isfile(full_path) == False:
+				fileSize = 1
+			else:
+				try:
+					pass
+					fileSize = os.path.getsize(full_path)
+				except:
+					fileSize = 1"""
+			self.service = self.account.create_block_blob_service()
+			file_data = {
+				"st_ctime" : 1456615173,
+				"st_mtime" : 1456615173,
+				"st_nlink" : 1,
+				"st_mode" : 33188,
+				"st_size" : self.service.get_blob_properties(containername, filename).properties.content_length,
+				"st_gid" : 1000,
+				"st_uid" : 1000,
+				"st_atime" : time(),
+			}
 			return file_data
 
 		st = os.lstat(full_path)
@@ -121,7 +150,7 @@ class Passthrough(Operations):
 
 	def readdir(self, path, fh):
 		if debug:
-			print "readdir " + path  
+			print "readdir  " + path  
 		
 		full_path = self._full_path(path)
 
@@ -231,44 +260,97 @@ class Passthrough(Operations):
 	# ============
 
 	def open(self, path, flags):
+		if debug:
+			print "open:    " + path
+			print flags
 		full_path = self._full_path(path)
-		return os.open(full_path, flags)
+		import config as config
+		account_name = config.STORAGE_ACCOUNT_NAME
+		account_key = config.STORAGE_ACCOUNT_KEY
+		containername = path.split('/')[1]
+		filename = path.split('/')[2]
+		block_blob_service = BlockBlobService(account_name, account_key)
+		try:
+			print "get block blob" 
+			if os.path.isdir(path.split('/')[1]) == False:
+				os.mkdir(full_path.split('/')[0]+'/'+containername)
+			if os.path.isfile(full_path) == False:
+				block_blob_service.get_blob_to_path(containername, filename, full_path)
+			else:
+				print "get block blob" 
+				os.remove(full_path)
+				block_blob_service.get_blob_to_path(containername, filename, full_path)
+		except:
+			pass
+		print "full path:   " + full_path 
+		print os.path.isfile(full_path)
+		return 0#os.open(full_path, flags)
 
 	def create(self, path, mode, fi=None):
+		if debug:
+			print "create:   " + path
 		full_path = self._full_path(path)
 		return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
 
 	def read(self, path, length, offset, fh):
 		if debug:
-			print "read		" + path
+			print "read:	   " + path
+			print "offset:  " 
+			print offset
+			print "length: "
+			print length 
+			print fh
+		full_path = self._full_path(path)
+		print full_path
 		#os.lseek(fh, offset, os.SEEK_SET)
-		#return os.read(fh, length)
-		#raise FuseOSError(errno.EACCES)
+		#if os.path.isfile(full_path) == False:
 		import config as config
 		account_name = config.STORAGE_ACCOUNT_NAME
 		account_key = config.STORAGE_ACCOUNT_KEY
-		#print 
+		containername = path.split('/')[1]
+		filename = path.split('/')[2]
+		print filename
 		block_blob_service = BlockBlobService(account_name, account_key)
-		block_blob_service.get_blob_to_path(containername, filename, tempfilename)	
-		block_blob_service.create_blob_from_path(new, filename, filename)
-		return -1
+		try:
+			if os.path.isdir(path.split('/')[1]) == False:
+				os.mkdir(full_path.split('/')[0]+'/'+containername)
+			if os.path.isfile(full_path) == False:
+				print "read block blob" 
+				block_blob_service.get_blob_to_path(containername, filename, full_path)
+			else:
+				os.remove(full_path)
+				block_blob_service.get_blob_to_path(containername, filename, full_path)
+		except:
+			pass
+			
+		fhn = os.open(full_path, 32768)
+		os.lseek(fhn, offset, os.SEEK_SET)
+
+		#return os.read(fh, length)
+		return os.read(fhn, length)
 
 	def write(self, path, buf, offset, fh):
+		if debug:
+			print "write:   " + path
 		os.lseek(fh, offset, os.SEEK_SET)
 		return os.write(fh, buf)
 
 	def truncate(self, path, length, fh=None):
+		print "truncate:   " + path
 		full_path = self._full_path(path)
 		with open(full_path, 'r+') as f:
 			f.truncate(length)
 
 	def flush(self, path, fh):
+		print "flush:   " + path
 		return os.fsync(fh)
 
 	def release(self, path, fh):
+		print "release:   " + path
 		return os.close(fh)
 
 	def fsync(self, path, fdatasync, fh):
+		print "fsync:   " + path
 		return self.flush(path, fh)
 
 
