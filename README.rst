@@ -41,11 +41,11 @@ Prerequisites:
 
     python -W ignore verify-azure.py
     
-Start the Server
+Docker
 ================
 .. code:: bash
 
-    docker run -it --privileged blobfs:latest /bin/bash
+    docker run -it --privileged mbartoli/blobfs /bin/bash
 
 .. |Python Version| image:: https://img.shields.io/badge/python-2.7-yellow.svg
     :target: https://www.python.org/
