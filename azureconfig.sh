@@ -7,3 +7,10 @@ SAS = ''
 IS_EMULATED = False
 EOF
 
+
+mkdir -p mnt
+mkdir -p dum
+
+
+service plexmediaserver start
+python blobfs.py dum mnt
