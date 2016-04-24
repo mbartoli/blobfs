@@ -265,6 +265,23 @@ class Passthrough(Operations):
 		if debug:
 			print "open:    " + path
 			print flags
+
+		return 0#os.open(full_path, flags)
+
+	def create(self, path, mode, fi=None):
+		if debug:
+			print "create:   " + path
+		full_path = self._full_path(path)
+		return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
+
+	def read(self, path, length, offset, fh):
+		if debug:
+			print "read:	   " + path
+			print "offset:  " 
+			print offset
+			print "length: "
+			print length 
+			print fh
 		full_path = self._full_path(path)
 		import config as config
 		account_name = config.STORAGE_ACCOUNT_NAME
@@ -285,23 +302,8 @@ class Passthrough(Operations):
 		except:
 			pass
 		print "full path:   " + full_path 
-		print os.path.isfile(full_path)
-		return 0#os.open(full_path, flags)
-
-	def create(self, path, mode, fi=None):
-		if debug:
-			print "create:   " + path
-		full_path = self._full_path(path)
-		return os.open(full_path, os.O_WRONLY | os.O_CREAT, mode)
-
-	def read(self, path, length, offset, fh):
-		if debug:
-			print "read:	   " + path
-			print "offset:  " 
-			print offset
-			print "length: "
-			print length 
-			print fh
+		print os.path.isfile(full_path)		
+		
 		full_path = self._full_path(path)
 		print full_path
 		#os.lseek(fh, offset, os.SEEK_SET)
