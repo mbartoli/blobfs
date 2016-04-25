@@ -19,6 +19,7 @@ from tests import (
 )
 
 from azure.storage.blob import BlockBlobService
+from azure.storage.blob import baseblobservice
 import azure.storage.blob
 
 import pdb
@@ -262,7 +263,7 @@ class Passthrough(Operations):
 	# ============
 
 	def open(self, path, flags):
-		if debug:
+		"""if debug:
 			print "open:    " + path
 			print flags
 		full_path = self._full_path(path)
@@ -285,7 +286,7 @@ class Passthrough(Operations):
 		except:
 			pass
 		print "full path:   " + full_path 
-		print os.path.isfile(full_path)
+		print os.path.isfile(full_path)"""
 		return 0#os.open(full_path, flags)
 
 	def create(self, path, mode, fi=None):
@@ -311,9 +312,12 @@ class Passthrough(Operations):
 		account_key = config.STORAGE_ACCOUNT_KEY
 		containername = path.split('/')[1]
 		filename = path.split('/')[2]
-		print filename
-		block_blob_service = BlockBlobService(account_name, account_key)
-		try:
+		service = baseblobservice.BaseBlobService(account_name, account_key)
+		blob = service.get_blob_to_bytes(containername, filename, None, offset, offset+length-1)
+		#blob = blob[offset:(offset+length)]
+		bytes = blob.content 
+		return bytes
+		"""try:
 			if os.path.isdir(path.split('/')[1]) == False:
 				os.mkdir(full_path.split('/')[0]+'/'+containername)
 			if os.path.isfile(full_path) == False:
@@ -327,9 +331,10 @@ class Passthrough(Operations):
 			
 		fhn = os.open(full_path, 32768)
 		os.lseek(fhn, offset, os.SEEK_SET)
-
-		#return os.read(fh, length)
-		return os.read(fhn, length)
+	
+		#print "os.read(fh, length)"
+		#print os.read(fh, length)
+		return os.read(fhn, length)"""
 
 	def write(self, path, buf, offset, fh):
 		if debug:
