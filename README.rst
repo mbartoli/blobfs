@@ -9,11 +9,11 @@ FUSE-based file system backed by Microsoft Azure's blob storage
 
 Examples & Usage
 ================
-Start blobfs where ``mnt`` is the folder where you want to mount Azure
+Start blobfs where ``mnt`` is the folder where you want to mount Azure and ``temp`` is an empty directory for caching.
 
 .. code:: bash
 
-    python -W ignore blobfs.py mnt 
+    python -W ignore blobfs.py temp mnt 
 
 Installation & Setup
 ====================
