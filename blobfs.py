@@ -263,7 +263,7 @@ class Passthrough(Operations):
 	# ============
 
 	def open(self, path, flags):
-		if debug:
+		"""if debug:
 			print "open:    " + path
 			print flags
 		full_path = self._full_path(path)
@@ -286,7 +286,7 @@ class Passthrough(Operations):
 		except:
 			pass
 		print "full path:   " + full_path 
-		print os.path.isfile(full_path)
+		print os.path.isfile(full_path)"""
 		return 0#os.open(full_path, flags)
 
 	def create(self, path, mode, fi=None):
