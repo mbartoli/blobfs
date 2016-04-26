@@ -11,5 +11,6 @@ EOF
 mkdir -p mnt
 mkdir -p dum
 
+/usr/sbin/start_pms
 
 python blobfs.py dum mnt &
