@@ -11,5 +11,5 @@ EOF
 mkdir -p mnt
 mkdir -p dum
 
-
+start plexmediaserver
 python blobfs.py dum mnt &
