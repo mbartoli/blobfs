@@ -12,5 +12,4 @@ mkdir -p mnt
 mkdir -p dum
 
 
-service plexmediaserver start
-python blobfs.py dum mnt
+python blobfs.py dum mnt &
