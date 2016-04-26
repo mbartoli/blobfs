@@ -8,7 +8,8 @@ RUN apt-get -y install \
 	python-pip \
 	wget \
 	git \
-	vim
+	vim \
+	python-fuse
 RUN pip install azure-storage
 
 WORKDIR /home
@@ -20,8 +21,6 @@ RUN sh configure && make -j8 && make install
 WORKDIR /home
 RUN git clone https://github.com/mbartoli/blobfs
 WORKDIR /home/blobfs
-
-
 
 
 
