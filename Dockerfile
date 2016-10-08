@@ -9,7 +9,8 @@ RUN apt-get -y install \
 	wget \
 	git \
 	vim \
-	python-fuse
+	python-fuse \
+	libssl-dev
 RUN pip install azure-storage
 
 WORKDIR /home
