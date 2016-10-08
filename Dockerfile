@@ -11,7 +11,7 @@ RUN apt-get -y install \
 	vim \
 	python-fuse \
 	libssl-dev
-RUN pip install azure-storage
+#RUN pip install azure-storage
 
 WORKDIR /home
 RUN wget https://github.com/libfuse/libfuse/releases/download/fuse_2_9_5/fuse-2.9.5.tar.gz
